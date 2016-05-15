@@ -1,62 +1,59 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
  
+ENTITY DataMemomry_tb IS
+END DataMemomry_tb;
  
-ENTITY datamemoryTB IS
-END datamemoryTB;
- 
-ARCHITECTURE behavior OF datamemoryTB IS 
+ARCHITECTURE behavior OF DataMemomry_tb IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT dataMemory
+    COMPONENT DataMemory
     PORT(
-         reset : IN  std_logic;
-         Data : IN  std_logic_vector(31 downto 0);
-         address : IN  std_logic_vector(31 downto 0);
-         wrEnMem : IN  std_logic;
-         datoMem : OUT  std_logic_vector(31 downto 0)
+         rst : IN  std_logic;
+         data : in  STD_LOGIC_VECTOR (31 downto 0);
+         writEnable : IN  std_logic;
+         address : in  STD_LOGIC_VECTOR (31 downto 0);
+         dataOut : OUT  std_logic_vector(31 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
-   signal reset : std_logic := '0';
-   signal Data : std_logic_vector(31 downto 0) := (others => '0');
-   signal address : std_logic_vector(31 downto 0) := (others => '0');
-   signal wrEnMem : std_logic := '0';
-
+   signal rst : std_logic := '0';
+   signal data :   STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
+   signal writEnable : std_logic := '0';
+   signal address :   STD_LOGIC_VECTOR (31 downto 0);
  	--Outputs
-   signal datoMem : std_logic_vector(31 downto 0);
-   -- No clocks detected in port list. Replace <clock> below with 
-   -- appropriate port name 
-
- 
+   signal dataOut : std_logic_vector(31 downto 0);
+  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: dataMemory PORT MAP (
-          reset => reset,
-          Data => Data,
+   uut: DataMemory PORT MAP (
+          rst => rst,
+          data => data,
+          writEnable => writEnable,
           address => address,
-          wrEnMem => wrEnMem,
-          datoMem => datoMem
+          dataOut => dataOut
         );
-
 
    -- Stimulus process
    stim_proc: process
-   begin		
-     
-	  
-	  reset <='1';
-	  Data <= "00000000000000000000000000000100";
-	  address <= "00000000000000000000000000001100";
-	  wrEnMem <= '1';
-     wait for 100 ns;	 
+   begin
+		rst <= '1';
+		writEnable <= '1';
+		address <= "00000000000000000000000000010000";
+		data <= "00000000000000000000000000010001";
+		
+      -- hold reset state for 100 ns.
+      wait for 100 ns;	
+		rst <= '1';
+		writEnable <= '0';
+		address <= "00000000000000000000000000010000";
+		data <= "00000000000000000000000000010111";
 
-	  wrEnMem <= '1';
-		wait for 100 ns;	
+      -- insert stimulus here 
 
       wait;
    end process;

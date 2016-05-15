@@ -3,32 +3,31 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 
-entity dataMemory is
-    Port ( 
-			  reset : in STD_LOGIC;
-			  Data : in  STD_LOGIC_VECTOR (31 downto 0);
-           address : in STD_LOGIC_VECTOR (31 downto 0);				
-           wrEnMem : in  STD_LOGIC;
-           datoMem : out  STD_LOGIC_VECTOR (31 downto 0));
-end dataMemory;
+entity DataMemory is
+    Port ( rst : in  STD_LOGIC;
+           data : in  STD_LOGIC_VECTOR (31 downto 0);
+           writEnable : in  STD_LOGIC;
+           address : in  STD_LOGIC_VECTOR (31 downto 0);
+           dataOut : out  STD_LOGIC_VECTOR (31 downto 0));
+end DataMemory;
 
-architecture arqDataMemory of dataMemory is
-	type ram_type is array (0 to 63) of std_logic_vector (31 downto 0);
-	signal ramMemory : ram_type:=(others => x"00000000");
+architecture arqUProcessor of DataMemory is
+	type ram_type is array (0 to 31) of std_logic_vector (31 downto 0);
+	signal my_Ram : ram_type := (others => x"00000001");
 begin
-	--reset,cRD,address,wrEnMem)
-	process(reset,Data,address,wrEnMem)
-	begin
-				if(reset = '0')then
-					datoMem <= (others => '0');
-					--ramMemory <= (others => x"00000000");
+	process(rst,data,writEnable,address)
+		begin
+			if (rst='0') then
+				dataOut <= x"00000000";
+			else
+				if (writEnable='1') then
+					my_Ram(conv_integer(address(4 downto 0))) <= data;
+					dataOut <=data;
 				else
-					--datoMem <= ramMemory(conv_integer(address(4 downto 0)));
-					if(wrEnMem = '1')then
-						datoMem <= ramMemory(conv_integer(address(4 downto 0)));
-					else
-						ramMemory(conv_integer(address(4 downto 0))) <= Data;
-					end if;
+					dataOut <= my_Ram(conv_integer(address(4 downto 0)));
 				end if;
+			end if;
 	end process;
-end arqDataMemory;
+
+end arqUProcessor;
+
