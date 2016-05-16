@@ -13,7 +13,7 @@ end DataMemory;
 
 architecture arqUProcessor of DataMemory is
 	type ram_type is array (0 to 31) of std_logic_vector (31 downto 0);
-	signal my_Ram : ram_type := (others => x"00000001");
+	signal my_Ram : ram_type := (others => x"00000000");
 begin
 	process(rst,data,writEnable,address)
 		begin

@@ -7,6 +7,7 @@ entity ControlUnit is
            Op3 : in  STD_LOGIC_VECTOR (5 downto 0);
 			  icc: in STD_LOGIC_VECTOR (3 downto 0);
 			  cond: in STD_LOGIC_VECTOR (3 downto 0);
+			  
 			  rfDest : out  STD_LOGIC;
 			  rfSource : out  STD_LOGIC_VECTOR (1 downto 0);
 			  wrEnMem : out  STD_LOGIC;
@@ -269,7 +270,7 @@ process(Op, Op2, Op3, icc, cond)
 				else
 				
 					if(op = "11")then
-							case op3 is 
+							case op3 is
 								when "000100" => -- STORE
 									rfSource <= "01";
 									wrEnMem <= '1';

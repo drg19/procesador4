@@ -15,7 +15,7 @@ architecture Behavioral of ALU is
 
 begin
 
-	PROCESS(CRS1,CRS2, ALUOP)
+	PROCESS(CRS1,CRS2, ALUOP,carry)
 	
 		begin
 		

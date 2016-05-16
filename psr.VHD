@@ -22,22 +22,19 @@ end PSR;
 
 architecture arqPSR of PSR is
 
-signal PSRegister: STD_LOGIC_VECTOR (31 DOWNTO 0):= (others=>'0');
 
 begin
 	process(clk)
 	begin
 		if(rising_edge(clk))then
-			if(reset = '1') then
+			if(reset = '0') then
 				CWP <= "00";
 				carry <= '0';
 				icc <= "0000";
 			else
-				PSRegister(23 downto 20) <= nzvc;
-				PSRegister(1 downto 0) <= nCWP;
-				carry <= PSRegister(20);
-				icc <= PSRegister(23 downto 20);
-				CWP <= PSRegister(1 downto 0);
+				carry <= nzvc(0);
+				icc <= nzvc;
+				CWP <= nCWP;
 			end if;
 		end if;
 	end process;

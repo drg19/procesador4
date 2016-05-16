@@ -32,7 +32,7 @@ begin
 				cRS1 <= registers(conv_integer(rS1));
 				cRS2 <= registers(conv_integer(rS2));
 				cRD <= registers(conv_integer(rD));
-				if(WriteEnable = '1' and rD /= "000000")then
+				if(WriteEnable = '1' and rD /= "00000")then
 					registers(conv_integer(rD)) <= dataToWrite;
 				end if;
 			end if;

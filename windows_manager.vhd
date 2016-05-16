@@ -13,9 +13,9 @@ entity WindowsManager is
            CWP : in  STD_LOGIC_VECTOR (1 downto 0);
 			  --RO7 : in STD_LOGIC_VECTOR (5 downto 0);
            nCWP : out   STD_LOGIC_VECTOR (1 downto 0);
-           nRs1 : out  STD_LOGIC_VECTOR (5 downto 0);--New Register Source 1
-           nRs2 : out  STD_LOGIC_VECTOR (5 downto 0);--New Register Source 2
-           nRd : out  STD_LOGIC_VECTOR (5 downto 0));--New Register Destination
+           nRs1 : out  STD_LOGIC_VECTOR (4 downto 0);--New Register Source 1
+           nRs2 : out  STD_LOGIC_VECTOR (4 downto 0);--New Register Source 2
+           nRd : out  STD_LOGIC_VECTOR (4 downto 0));--New Register Destination
 
 end WindowsManager;
 
@@ -34,8 +34,7 @@ begin
 			if(OP3 = "111101")then--RESTORE
 				ncwp_signal <= "01";--Disminuimos el cwp
 			end if;
-		else
-			ncwp_signal<=CWP;
+			--ncwp_signal<=CWP;
 		end if;
 
 		if(Rs1>="11000" and Rs1<="11111") then--Si es un registro de entrada (r[24] - r[31])
