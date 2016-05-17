@@ -386,7 +386,7 @@ begin
 	 Seu222 : SEU_22 
     Port map( disp22 =>G(21 downto 0),
 					simm32 =>Q
-	)			;
+	)			; 
 	
 -----------------------------------------------
 ALURESULT <= H;
