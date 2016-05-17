@@ -11,10 +11,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity muxRFDest is
-    Port ( nrd : in  STD_LOGIC_VECTOR (4 downto 0);
-           registroO7 : in  STD_LOGIC_VECTOR (4 downto 0);
+    Port ( nrd : in  STD_LOGIC_VECTOR (5 downto 0);
+           registroO7 : in  STD_LOGIC_VECTOR (5 downto 0);
            RFDestSel : in  STD_LOGIC;
-           RFDest : out  STD_LOGIC_VECTOR (4 downto 0));
+           RFDest : out  STD_LOGIC_VECTOR (5 downto 0));
 end muxRFDest;
 
 architecture arqMuxRFDest of muxRFDest is

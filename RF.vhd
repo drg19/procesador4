@@ -4,9 +4,9 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity registerFile is
     Port ( reset : in  STD_LOGIC;
-           rS1 : in  STD_LOGIC_VECTOR (4 downto 0);
-           rS2 : in  STD_LOGIC_VECTOR (4 downto 0);
-           rD : in  STD_LOGIC_VECTOR (4 downto 0);
+           rS1 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rS2 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rD : in  STD_LOGIC_VECTOR (5 downto 0);
 			  WriteEnable : in STD_LOGIC;
 			  dataToWrite : in STD_LOGIC_VECTOR (31 downto 0);
            cRS1 : out  STD_LOGIC_VECTOR (31 downto 0);

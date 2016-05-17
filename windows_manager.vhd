@@ -3,76 +3,101 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-
 entity WindowsManager is
-    Port ( Rs1 : in  STD_LOGIC_VECTOR (4 downto 0);--Register Source 1
-           Rs2 : in  STD_LOGIC_VECTOR (4 downto 0);--Register Source 2
-           Rd : in  STD_LOGIC_VECTOR (4 downto 0);--Register Destination
-           OP : in  STD_LOGIC_VECTOR (1 downto 0);
-           OP3 : in  STD_LOGIC_VECTOR (5 downto 0);
-           CWP : in  STD_LOGIC_VECTOR (1 downto 0);
-			  --RO7 : in STD_LOGIC_VECTOR (5 downto 0);
-           nCWP : out   STD_LOGIC_VECTOR (1 downto 0);
-           nRs1 : out  STD_LOGIC_VECTOR (4 downto 0);--New Register Source 1
-           nRs2 : out  STD_LOGIC_VECTOR (4 downto 0);--New Register Source 2
-           nRd : out  STD_LOGIC_VECTOR (4 downto 0));--New Register Destination
-
+    Port ( op : in  STD_LOGIC_VECTOR (1 downto 0);
+           op3 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rd : in  STD_LOGIC_VECTOR (4 downto 0);
+           rs1 : in  STD_LOGIC_VECTOR (4 downto 0);
+			  rs2 : in  STD_LOGIC_VECTOR (4 downto 0);
+           cwp : in  STD_LOGIC;
+			  
+           nrs1 : out  STD_LOGIC_VECTOR (5 downto 0);
+           nrs2 : out  STD_LOGIC_VECTOR (5 downto 0);
+           nrd : out  STD_LOGIC_VECTOR (5 downto 0);
+           ncwp : out  STD_LOGIC:='0';
+			  
+			  Registro07 : out STD_LOGIC_VECTOR (5 downto 0));
 end WindowsManager;
 
-architecture arq_WindowsManager of WindowsManager is
+architecture Behavioral of WindowsManager is
 
-signal Rs1Integer,Rs2Integer,RdInteger: integer range 0 to 39:=0;
-signal ncwp_signal: STD_LOGIC_VECTOR (1 downto 0);
+signal rs1I,rs2I,rdI: integer range 0 to 39:=0;
+--signal auxRegistroO7 : std_logic_vector(6 downto 0);
+--signal mul:std_logic_vector(1 downto 0);
 
 begin
-	process(CWP,OP,OP3,Rs1,Rs2,Rd,ncwp_signal)
-	begin
-		if(OP = "10") then
-			if(OP3 = "111100")then--SAVE
-				ncwp_signal <= "00";--Aumentamos el cwp
-			end if;
-			if(OP3 = "111101")then--RESTORE
-				ncwp_signal <= "01";--Disminuimos el cwp
-			end if;
-			--ncwp_signal<=CWP;
-		end if;
-
-		if(Rs1>="11000" and Rs1<="11111") then--Si es un registro de entrada (r[24] - r[31])
-				Rs1Integer <= conv_integer(Rs1)-(conv_integer(cwp)*16);
-		elsif(Rs1>="10000" and Rs1<="10111") then--Si es un registro de local (r[16] - r[23])
-				Rs1Integer <= conv_integer(Rs1)+(conv_integer(cwp)*16);
-		elsif(Rs1>="01000" and Rs1<="01111") then--Si es un registro de salida (r[8] - r[15])
-				Rs1Integer <= conv_integer(Rs1)+ (conv_integer(cwp)*16);
-		elsif(Rs1>="00000" and Rs1<="00111") then--Si es un registro global (r[0] - r[7])
-				Rs1Integer <= conv_integer(Rs1);
-		end if;
-		
-		if(Rs2>="11000" and Rs2<="11111") then--Si es un registro de entrada (r[24] - r[31])
-				Rs2Integer <= conv_integer(Rs2)-(conv_integer(cwp)*16);
-		elsif(Rs2>="10000" and Rs2<="10111") then--Si es un registro de local (r[16] - r[23])
-				Rs2Integer <= conv_integer(Rs2)+(conv_integer(cwp)*16);
-		elsif(Rs2>="01000" and Rs2<="01111") then--Si es un registro de salida (r[8] - r[15])
-				Rs2Integer <= conv_integer(Rs2)+ (conv_integer(cwp)*16);
-		elsif(Rs2>="00000" and Rs2<="00111") then--Si es un registro global (r[0] - r[7])
-				Rs2Integer <= conv_integer(Rs2);
-		end if;
-		
-		if(Rd>="11000" and Rd<="11111") then--Si es un registro de entrada (r[24] - r[31])
-				RdInteger <= conv_integer(Rd)-(conv_integer(ncwp_signal)*16);
-		elsif(Rd>="10000" and Rd<="10111") then--Si es un registro de local (r[16] - r[23])
-				RdInteger <= conv_integer(Rd)+(conv_integer(ncwp_signal)*16);
-		elsif(Rd>="01000" and Rd<="01111") then--Si es un registro de salida (r[8] - r[15])
-				RdInteger <= conv_integer(Rd)+ (conv_integer(ncwp_signal)*16);
-		elsif(Rd>="00000" and Rd<="00111") then--Si es un registro global (r[0] - r[7])
-				RdInteger <= conv_integer(Rd);
-		end if;
-			
+	process(cwp)
+		begin
+			if (cwp = '1') then
+				Registro07 <= "011111";
+			else
+				Registro07 <= "001111";
+			end if;		
 	end process;
-	nRs1 <= conv_std_logic_vector(Rs1Integer, 6);
-	nRs2 <= conv_std_logic_vector(Rs2Integer, 6);
-	nRd <= conv_std_logic_vector(RdInteger, 6);
-	nCWP <= ncwp_signal;
-
-
-end arq_WindowsManager;
-
+	
+	process(op, op3, rd, rs1, rs2, cwp)
+		begin
+		
+		if(op = "10" and op3 = "111100")then--SAVE
+			ncwp <= '0';
+		else
+			if(op = "10" and op3 = "111101")then--RESTORE
+				ncwp <= '1';
+			end if;
+		end if;
+		
+		if(rs1>="00000" and rs1<="00111") then -- 0 - 7
+			rs1I <= conv_integer(rs1);
+		else
+			if(rs1>="11000" and rs1<="11111") then--24 - 31
+				rs1I <= conv_integer(rs1)-(conv_integer(cwp)*16);
+			else
+				if(rs1>="10000" and rs1<="10111") then--16-23
+					rs1I <= conv_integer(rs1)+(conv_integer(cwp)*16);
+				else
+						if(rs1>="01000" and rs1<="01111") then--8 - 15
+							rs1I <= conv_integer(rs1)+ (conv_integer(cwp)*16);
+						end if;
+				end if;
+			end if;
+		end if;
+		
+		if(rs2>="00000" and rs2<="00111") then -- 0 - 7
+			rs2I <= conv_integer(rs2);
+		else
+			if(rs2>="11000" and rs2<="11111") then--24 - 31
+				rs2I <= conv_integer(rs2)-(conv_integer(cwp)*16);
+			else
+				if(rs2>="10000" and rs2<="10111") then--16-23
+					rs2I <= conv_integer(rs2)+(conv_integer(cwp)*16);
+				else
+						if(rs2>="01000" and rs2<="01111") then--8 - 15
+							rs2I <= conv_integer(rs2)+ (conv_integer(cwp)*16);
+						end if;
+				end if;
+			end if;
+		end if;
+		
+		
+		if(rd>="00000" and rd<="00111") then -- 0 - 7
+			rdI <= conv_integer(rd);
+		else
+			if(rd>="11000" and rd<="11111") then--24 - 31
+				rdI <= conv_integer(rd)-(conv_integer(cwp)*16);
+			else
+				if(rd>="10000" and rd<="10111") then--16-23
+					rdI <= conv_integer(rd)+(conv_integer(cwp)*16);
+				else
+						if(rd>="01000" and rd<="01111") then--8 - 15
+							rdI <= conv_integer(rd)+ (conv_integer(cwp)*16);
+						end if;
+				end if;
+			end if;
+		end if;	
+	
+	end process;
+	
+	nrs1 <= conv_std_logic_vector(rs1I, 6);
+	nrs2 <= conv_std_logic_vector(rs2I, 6);
+	nrd <= conv_std_logic_vector(rdI, 6);
+end Behavioral;

@@ -14,8 +14,8 @@ entity PSR is
     Port ( clk : in  STD_LOGIC;
            reset : in  STD_LOGIC;
            nzvc : in  STD_LOGIC_VECTOR (3 downto 0);
-           nCWP : in  STD_LOGIC_VECTOR (1 downto 0);
-           CWP : out  STD_LOGIC_VECTOR (1 downto 0);
+           nCWP : in  STD_LOGIC;
+           CWP : out  STD_LOGIC;
            carry : out  STD_LOGIC;
            icc : out  STD_LOGIC_VECTOR (3 downto 0));
 end PSR;
@@ -28,7 +28,7 @@ begin
 	begin
 		if(rising_edge(clk))then
 			if(reset = '0') then
-				CWP <= "00";
+				CWP <= '0';
 				carry <= '0';
 				icc <= "0000";
 			else

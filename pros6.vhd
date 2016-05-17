@@ -47,9 +47,9 @@ architecture Behavioral of pros6 is
 	
 component registerFile 
     Port ( reset : in  STD_LOGIC;
-           rS1 : in  STD_LOGIC_VECTOR (4 downto 0);
-           rS2 : in  STD_LOGIC_VECTOR (4 downto 0);
-           rD : in  STD_LOGIC_VECTOR (4 downto 0);
+           rS1 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rS2 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rD : in  STD_LOGIC_VECTOR (5 downto 0);
 			  WriteEnable : in STD_LOGIC;
 			  dataToWrite : in STD_LOGIC_VECTOR (31 downto 0);
            cRS1 : out  STD_LOGIC_VECTOR (31 downto 0);
@@ -99,8 +99,8 @@ end component;
     Port ( clk : in  STD_LOGIC;
            reset : in  STD_LOGIC;
            nzvc : in  STD_LOGIC_VECTOR (3 downto 0);
-           nCWP : in  STD_LOGIC_VECTOR (1 downto 0);
-           CWP : out  STD_LOGIC_VECTOR (1 downto 0);
+           nCWP : in  STD_LOGIC;
+           CWP : out  STD_LOGIC;
            carry : out  STD_LOGIC;
            icc : out  STD_LOGIC_VECTOR (3 downto 0));
 	end component;
@@ -122,10 +122,10 @@ end component;
 	end component;
 	
 	component muxRFDest 
-    Port ( nrd : in  STD_LOGIC_VECTOR (4 downto 0);
-           registroO7 : in  STD_LOGIC_VECTOR (4 downto 0);
+    Port ( nrd : in  STD_LOGIC_VECTOR (5 downto 0);
+           registroO7 : in  STD_LOGIC_VECTOR (5 downto 0);
            RFDestSel : in  STD_LOGIC;
-           RFDest : out  STD_LOGIC_VECTOR (4 downto 0));
+           RFDest : out  STD_LOGIC_VECTOR (5 downto 0));
 	end component;
 	
 	component Mux_DataToWr 
@@ -144,31 +144,39 @@ end component;
            dataOut : out  STD_LOGIC_VECTOR (31 downto 0));
 	end component;
 	
-	component WindowsManager 
-    Port ( Rs1 : in  STD_LOGIC_VECTOR (4 downto 0);--Register Source 1
-           Rs2 : in  STD_LOGIC_VECTOR (4 downto 0);--Register Source 2
-           Rd : in  STD_LOGIC_VECTOR (4 downto 0);--Register Destination
-           OP : in  STD_LOGIC_VECTOR (1 downto 0);
-           OP3 : in  STD_LOGIC_VECTOR (5 downto 0);
-           CWP : in  STD_LOGIC_VECTOR (1 downto 0);
-			  --RO7 : in STD_LOGIC_VECTOR (5 downto 0);
-           nCWP : out   STD_LOGIC_VECTOR (1 downto 0);
-           nRs1 : out  STD_LOGIC_VECTOR (4 downto 0);--New Register Source 1
-           nRs2 : out  STD_LOGIC_VECTOR (4 downto 0);--New Register Source 2
-           nRd : out  STD_LOGIC_VECTOR (4 downto 0));--New Register Destination
-
-	end component;
+	COMPONENT WindowsManager
+	PORT(
+		op : IN std_logic_vector(1 downto 0);
+		op3 : IN std_logic_vector(5 downto 0);
+		rd : IN std_logic_vector(4 downto 0);
+		rs1 : IN std_logic_vector(4 downto 0);
+		rs2 : IN std_logic_vector(4 downto 0);
+		cwp : IN std_logic;          
+		nrs1 : OUT std_logic_vector(5 downto 0);
+		nrs2 : OUT std_logic_vector(5 downto 0);
+		nrd : OUT std_logic_vector(5 downto 0);
+		ncwp : OUT std_logic;
+		Registro07 : OUT std_logic_vector(5 downto 0)
+		);
+	END COMPONENT;
 	
 	component SEU_22 
     Port ( disp22 : in  STD_LOGIC_VECTOR (21 downto 0);
            simm32 : out  STD_LOGIC_VECTOR (31 downto 0));
 	end component;
 
+	COMPONENT SEU30
+	PORT(
+		imm30 : IN std_logic_vector(29 downto 0);          
+		SEU30_out : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
 signal A,B,C,D,E,F,G,I,J,L,M,N,O,K,H,Q,R,S,T,U,Z,A1,A8: STD_LOGIC_VECTOR (31 downto 0);
-signal CA,Y,A9,A6,A7: STD_LOGIC;
-signal X,A2,A3,P : STD_LOGIC_VECTOR(1 downto 0);
+signal CA,Y,A9,A6,A7,A2,A3: STD_LOGIC;
+signal X,P : STD_LOGIC_VECTOR(1 downto 0);
 signal A4,A5 : STD_LOGIC_VECTOR(3 downto 0);
-signal V: STD_LOGIC_VECTOR(5 downto 0);
+signal V,WmNrs1,WmNrs2,WmNrd,nRd,Ro7: STD_LOGIC_VECTOR(5 downto 0);
 signal W: STD_LOGIC;
  
 begin
@@ -214,9 +222,9 @@ begin
 	
 		RFF : registerFile 
     Port map( reset =>reset,
-           rS1 =>Z(4 DOWNTO 0),
-           rS2 =>Z(9 DOWNTO 5),
-           rD =>A8(4 DOWNTO 0),
+           rS1 =>WmNrs1,
+           rS2 =>WmNrs2,
+           rD =>nRd,
 			  WriteEnable =>A9,
 			  dataToWrite =>H,
            cRS1 =>K,
@@ -227,7 +235,7 @@ begin
 -----------------------------------------------
 	
 	 Sumadoor : Sumador 
-    Port map( 	A => "00000000000000000000000000000001",
+    Port map( 	A => x"00000001",
 					B =>C,
 					Cout =>D
 				);
@@ -243,10 +251,16 @@ begin
 -----------------------------------------------
 
 	 Sumadoor2 : Sumador
-    Port map( 	A =>G,
+    Port map( 	A =>S,
 					B =>E,
 					Cout =>U
 				);
+	
+	Inst_SEU30: SEU30 PORT MAP(
+		imm30 => G (29 downto 0) ,
+		SEU30_out => S
+	);
+
 	
 -----------------------------------------------
 	
@@ -321,10 +335,10 @@ begin
 -----------------------------------------------
 	
 	  muxRFD : muxRFDest  
-    Port map( nrd =>A1(4 DOWNTO 0),
-				  registroO7 =>"01111",
+    Port map( nrd =>WmNrd,
+				  registroO7 =>Ro7,
 				  RFDestSel =>W,
-				  RFDest =>A8(4 DOWNTO 0)
+				  RFDest =>nRd
 				);
 	
 -----------------------------------------------
@@ -351,16 +365,19 @@ begin
 -----------------------------------------------
 	
 	WM : WindowsManager 
-    Port map( Rs1 => G (18 downto 14),
-					Rs2 => G (4 downto 0),
-					Rd => G(29 downto 25),
-					OP => G(31 downto 30),
-					OP3 => G(24 downto 19),
-					CWP => A2,
-					nCWP => A3,
-					nRs1 => Z (4 downto 0),
-					nRs2 => Z(9 downto 5),
-					nRd => A1(4 downto 0)
+    Port map(	
+		op => G (31 downto 30),
+		op3 => G (24 downto 19),
+		rd => G (29 downto 25),
+		rs1 => G (18 downto 14),
+		rs2 => G (4 downto 0),
+		cwp => A3,
+		nrs1 =>WmNrs1 ,
+		nrs2 =>WmNrs2 ,
+		nrd => WmNrd,
+		ncwp => A2,
+		Registro07 => Ro7 
+
 
 	);
 	
